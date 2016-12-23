@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+    
+        <title>Entri Penolakan</title>
+        
+        <meta charset='utf-8'>
+        
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+        <style>
+            
+            body {
+                font-family: sans-serif;
+                margin: 0px;
+            }
+            
+            tr>th {
+                background-color: #aaaaaa;
+            }
+            
+            .row {
+                background-color: white;
+            }
+            
+            .selected {
+                background-color: orange;
+            }
+
+        </style>
+        
+    </head>
+    
+    <body>
+    
+        <div style='background-color: #dddddd; width:800px; height:530px; padding: 5px; padding-top: 10px; padding-right: 0px;'>
+            
+            <div style='background-color: #173169; margin:0px; margin-bottom:10px; height:46px;'>
+                <h1 style='color:white; margin:0px; float:left; margin:5px;'>ENTRI PENOLAKAN</h1>
+                <img src="../static/img/sun.png" style='float:right; margin:0px;'/>
+            </div>
+            
+            <div style='width:795px; height:145px;'> <!--what!-->
+                
+                <div style='float:left; width:655px; margin:0px;'>
+                    <div style='float:left; width:655px;'>
+                        <div style='float:left; width:655px; padding:5px;'>
+                            <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Tanggal: </b></p>
+                            <input id='inp_tanggal' type='date' style='float:left; width:184px;'/>
+<!--
+                            <p style='width:100px; margin:0px; padding-top:2px; padding-left:5px; float:left; height:21px;'><b>(mm/dd/yyyy)</b></p>
+-->
+                        </div>
+                    </div>
+                    
+                    <div style='float:left; width:655px; padding:5px;'>
+                        <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Nama Obat: </b></p>
+                        <input id='inp_kodeobat' type='text' style='display:none;'/>
+                        <input id='inp_namaobat' type='text' style='float:left; width:516px;' />
+                    </div> 
+                    
+                    <div style='float:left; width:655px;'>
+                        <div style='float:left; width:318px; padding:5px;'>
+                            <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Satuan: </b></p>
+                            <input id='inp_satuan' type='text' style='float:left; width:170px;' readonly='readonly'/>
+                        </div>
+                        <div style='float:left; width:313px; padding:5px;'>
+                            <p style='width:100px; margin:0px; padding-top:2px; margin-left:18px; float:left; height:21px;'><b>Harga: </b></p>
+                            <input id='inp_harga' type='text' style='float:left; width:170px;'/>
+                        </div>
+                    </div> 
+                    
+                    <div style='float:left; width:655px;'>
+                        <div style='float:left; width:318px; padding:5px;'>
+                            <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Qty: </b></p>
+                            <input id='inp_qty' type='text' style='float:left; width:170px;'/>
+                        </div>
+                        <div style='float:left; width:313px; padding:5px;'>
+                            <p style='width:100px; margin:0px; padding-top:2px; margin-left:18px; float:left; height:21px;'><b>Sub Total: </b></p>
+                            <input id='inp_subtot' type='text' style='float:left; width:170px;' readonly='readonly'/>
+                        </div>
+                    </div> 
+                    
+                </div>
+                
+                <div style='float:left; width:130px; height:116px; margin:0px; padding:5px;'>
+                    <div id='entri' style='color: white; background-color: #009900; width:120px; height:30px; margin-left:5px; text-align:center; font-size:1.5em;' tabindex='1'><b>Entri</b></div>
+                    <button style='color: white; background-color: #aa0000;width:120px; height:35px; margin-left:5px; margin-top:2px;'><b>Batal</b></button>
+                    <button style='width:120px; margin-left:5px; margin-top:2px;'>Edit</button>
+                    <button style='width:120px; margin-left:5px; margin-top:2px;'>Hapus</button>
+                </div>
+            </div>
+            <div>
+                <table style='width:794px;'>
+                    <tr>
+                        <th><div style='width:56px;'>No.</div></th>
+                        <th><div style='width:336px;'>Nama Obat</div></th>
+                        <th><div style='width:86px;'>Satuan</div></th>
+                        <th><div style='width:76px;'>Qty</div></th>
+                        <th><div style='width:96px;'>Harga</div></th>
+                        <th><div style='width:96px;'>Subtotal</div></th>
+                        <th><div style='width:18px;'></div></th>
+                    </tr>
+                </table>
+                
+                <div id='tab_rows' style='height:220px; width:793px; overflow:scroll;'></div>
+            </div>
+            <div style='padding:5px;'>
+                <input type='text' style='float:right;height:30px;margin-right:16px;'/>
+                <p style='margin:0px; margin-right:10px; float:right; font-size:2em;'><b>Total:</b></p>
+                <button style='color: white; background-color: #aa0000; width:80px; height:40px; float:right; margin-right:15px;' name='tombol_keluar'><b>Keluar</b></button>
+                <form action = "/test" method="post"><button style='color: white; background-color: #009900; width:120px; height:40px; float:right; margin-right:15px;' id='save' name='but' value='mamapapa'/><b>Simpan</b></button></form>
+            </div>
+        </div>
+        <script src='../static/js/index.js'></script>
+    </body>
+</html>
