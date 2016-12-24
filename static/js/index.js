@@ -1,5 +1,5 @@
-var Table = function (upperpanel) {
-    this.upperpanel = upperpanel;
+var Table = function (form) {
+    this.form = form;
     this.widget = document.createElement('table');
     this.widget.style.width = '772px';
     this.widget.tabIndex = '1';
@@ -13,8 +13,8 @@ var Table = function (upperpanel) {
             nama_obat: '',
             satuan: '',
             qty: '',
-            harga: '',
-            subtotal: ''
+            hnappn: '',
+            jenistrx: ''
         }
     }
     
@@ -27,8 +27,8 @@ var Table = function (upperpanel) {
             "<td class='row'><div style='width:336px; overflow:hidden;padding-right:0px'><p style='width:500px; margin:0px; text-align:left;'>" + data.nama_obat + "</p></div></td>" +
             "<td class='row'><div style='width:86px;text-align:center;'>" + data.satuan + "</div></td>" +
             "<td class='row'><div style='width:76px;text-align:center;'>" + data.qty + "</div></td>" +
-            "<td class='row'><div style='width:96px;text-align:center;'>" + data.harga + "</div></td>" +
-            "<td class='row'><div style='width:96px;text-align:center;'>" + data.subtotal + "</div></td>";
+            "<td class='row'><div style='width:96px;text-align:center;'>" + data.hnappn + "</div></td>" +
+            "<td class='row'><div style='width:96px;text-align:center;'>" + data.jenistrx + "</div></td>";
         return widget;
     }
     
@@ -141,17 +141,17 @@ var Table = function (upperpanel) {
     
     this.select_row(0);
     
-    
     this.data = []
     
     this.add_data = function (data) {
         this.data.push({
+            tanggal: data.tanggal,
             kode_obat: data.kode_obat,
             nama_obat: data.nama_obat,
             satuan: data.satuan,
             qty: data.qty,
-            harga: data.harga,
-            subtotal: data.subtotal
+            hnappn: data.hnappn,
+            jenistrx: data.jenistrx
         });
     }
     
@@ -178,8 +178,8 @@ var Table = function (upperpanel) {
                         nama_obat: this.data[i].nama_obat,
                         satuan: this.data[i].satuan,
                         qty: this.data[i].qty,
-                        harga: this.data[i].harga,
-                        subtotal: this.data[i].subtotal
+                        hnappn: this.data[i].hnappn,
+                        jenistrx: this.data[i].jenistrx
                     });
                 } else {
                     var el = this.create_row({
@@ -187,8 +187,8 @@ var Table = function (upperpanel) {
                         nama_obat: '',
                         satuan: '',
                         qty: '',
-                        harga: '',
-                        subtotal: ''
+                        hnappn: '',
+                        jenistrx: ''
                     });
                 }
                 el.onclick = function (e) {
@@ -211,8 +211,8 @@ var Table = function (upperpanel) {
                     nama_obat: this.data[i].nama_obat,
                     satuan: this.data[i].satuan,
                     qty: this.data[i].qty,
-                    harga: this.data[i].harga,
-                    subtotal: this.data[i].subtotal
+                    hnappn: this.data[i].hnappn,
+                    jenistrx: this.data[i].jenixtrx
                 });
                 el.onclick = function (e) {
                     if (e.target.tagName == 'TD') {
@@ -273,14 +273,25 @@ var Table = function (upperpanel) {
                 // ESC
                 document.getElementById('inp_namaobat').focus();
             } else if (e.which === 13) {
-                if (e.target.tagName == 'TD') {
-                    var target_node = e.target.parentNode;
-                } else if (e.target.tagName == 'DIV') {
-                    var target_node = e.target.parentNode.parentNode;
-                } else if (e.target.tagName == 'P') {
-                    var target_node = e.target.parentNode.parentNode.parentNode;
+                var numrow = this.rows_els.indexOf(this.rows_els[this.selected_now])
+                var src = this.data[numrow];
+                this.form.inp_kodeobat.value = src.kode_obat;
+                this.form.inp_namaobat.value = src.nama_obat;
+                this.form.inp_satuan.value = src.satuan;
+                this.form.inp_qty.value = src.qty;
+                this.form.inp_hnappn.value = src.hnappn;
+                this.form.inp_jenistrx.value = src.jenistrx;
+                var rm_elem = function(ls, n) {
+                    var res = [];
+                    for (var i=0; i<ls.length; i++) {
+                        if (i !== n) {
+                            res.push(ls[i]);
+                        }
+                    }
+                    return res;
                 }
-                this.upperpanel.inp_namaobat = this.data[this.rows_els.indexOf(target_node)].nama_obat;
+                this.data = rm_elem(this.data, numrow);
+                this.rerender_data();
             }
         }.bind(this);
         
@@ -288,9 +299,6 @@ var Table = function (upperpanel) {
         
     }.bind(this);
 }
-
-
-
 
 
 var CariObat = function (visitor, ret) {
@@ -305,10 +313,11 @@ var CariObat = function (visitor, ret) {
         div1.innerHTML = 
             "<table style='width:793px;'>" +
                 "<tr>" +
+                    "<th><div style='width:53px;'>No.</div></th>" +
                     "<th><div style='width:150px;'>Kode Obat</div></th>" +
-                    "<th><div style='width:433px;'>Nama Obat</div></th>" +
+                    "<th><div style='width:380px;'>Nama Obat</div></th>" +
                     "<th><div style='width:86px;'>Satuan</div></th>" +
-                    "<th><div style='width:96px;'>Harga</div></th>" +
+                    "<th><div style='width:96px;'>HNAPPN</div></th>" +
                     "<th><div style='width:18px;'></div></th>" +
                 "</tr>" +
             "</table>"
@@ -324,21 +333,49 @@ var CariObat = function (visitor, ret) {
     
     this.rows_els = [];
     
-    this.create_row = function (data, id) {
+    this.create_row = function (data) {
         var row = document.createElement('tr');
-        row.id = id;
         row.innerHTML =
-            "<td class='row'><div style='width:150px;text-align:center;'>" + data[0] + "</div></td>" +
-            "<td class='row'><div style='width:433px; overflow:hidden;padding-right:0px'><p style='width:500px; margin:0px; text-align:left;'>" + data[1] + "</p></div></td>" +
-            "<td class='row'><div style='width:86px;text-align:center;'>" + data[2] + "</div></td>" +
-            "<td class='row'><div style='width:96px;text-align:center;'>" + data[3] + "</div></td>";
+            "<td class='row'><div style='width:53px;text-align:center;'>" + data.num + "</div></td>" +
+            "<td class='row'><div style='width:150px;text-align:center;'>" + data.kode_obat + "</div></td>" +
+            "<td class='row'><div style='width:380px;overflow:hidden;padding-right:0px'><p style='width:500px; margin:0px; text-align:left;'>" + data.nama_obat + "</p></div></td>" +
+            "<td class='row'><div style='width:86px;text-align:center;'>" + data.satuan + "</div></td>" +
+            "<td class='row'><div style='width:96px;text-align:center;'>" + data.hnappn + "</div></td>";
         this.rows_els.push(row);
         return row;
     }.bind(this);
     
     var res = ret.result;
-    for (var i=0; i<res.length; i++) {
-        this.table.appendChild(this.create_row.bind(this)(res[i], 'co_' + i));
+    if (res.length < 23) {
+        for (var i=0; i<23; i++) {
+            if (i < res.length) {
+                this.table.appendChild(this.create_row.bind(this)({
+                    num: i + 1,
+                    kode_obat: res[i][0],
+                    nama_obat: res[i][1],
+                    satuan: res[i][2],
+                    hnappn: res[i][3]
+                }));
+            } else {
+                this.table.appendChild(this.create_row.bind(this)({
+                    num: i + 1,
+                    kode_obat: '',
+                    nama_obat: '',
+                    satuan: '',
+                    hnappn: ''
+                }));
+            }
+        }
+    } else {
+        for (var i=0; i<res.length; i++) {
+            this.table.appendChild(this.create_row.bind(this)({
+                num: i + 1,
+                kode_obat: res[i][0],
+                nama_obat: res[i][1],
+                satuan: res[i][2],
+                hnappn: res[i][3]
+            }));
+        }
     }
     
     this.selected_before = 0;
@@ -348,11 +385,11 @@ var CariObat = function (visitor, ret) {
         this.selected_before = this.selected_now;
         this.selected_now = num_row;
         
-        for (var h=0; h<4; h++) {
+        for (var h=0; h<5; h++) {
             this.rows_els[this.selected_before].children[h].setAttribute('class', 'row')
         }
         
-        for (var i=0; i<4; i++) {
+        for (var i=0; i<5; i++) {
             this.rows_els[this.selected_now].children[i].setAttribute('class', 'selected');
         }
     }.bind(this);
@@ -443,41 +480,35 @@ var CariObat = function (visitor, ret) {
             document.getElementById('inp_namaobat').focus();
         } else if (e.which === 13) {
             // ENTER
-            this.visitor.kode_obat = this.rows_els[this.selected_now].children[0].children[0].innerHTML;
-            this.visitor.inp_namaobat.value = this.rows_els[this.selected_now].children[1].children[0].children[0].innerHTML;
-            this.visitor.inp_satuan.value = this.rows_els[this.selected_now].children[2].children[0].innerHTML;
-            this.visitor.harga = parseInt(this.rows_els[this.selected_now].children[3].children[0].innerHTML);
+            this.visitor.inp_kodeobat.value = this.rows_els[this.selected_now].children[1].children[0].innerHTML;
+            this.visitor.inp_namaobat.value = this.rows_els[this.selected_now].children[2].children[0].children[0].innerHTML;
+            this.visitor.inp_satuan.value = this.rows_els[this.selected_now].children[3].children[0].innerHTML;
+            this.visitor.inp_hnappn.value = parseInt(this.rows_els[this.selected_now].children[4].children[0].innerHTML);
             document.body.removeChild(this.widget);
-            visitor.select_harga();
+            visitor.inp_qty.focus();
         }
     }.bind(this);
-    
-    this.zero_data = function(n) {
-        return {
-            kode_obat: n,
-            nama_obat: '',
-            satuan: '',
-            harga: ''
-        }
-    }
-    
     
     this.table.focus();
 }
 
 
-var UpperPanel = function () {
-    this.table = new Table(this);
+var Form = function () {
     this.inp_tanggal = document.getElementById('inp_tanggal');
     this.inp_kodeobat = document.getElementById('inp_kodeobat');
     this.inp_namaobat = document.getElementById('inp_namaobat');
     this.inp_satuan = document.getElementById('inp_satuan');
-    this.inp_harga = document.getElementById('inp_harga');
+    this.inp_hnappn = document.getElementById('inp_hnappn');
     this.inp_qty = document.getElementById('inp_qty');
-    this.inp_subtot = document.getElementById('inp_subtot');
+    this.inp_jenistrx = document.getElementById('inp_jenistrx');
     this.entri = document.getElementById('entri');
     this.kode_obat = '';
-    this.harga = 0;
+    this.batal = document.getElementById('batal');
+    this.hapus = document.getElementById('hapus');
+    this.simpan = document.getElementById('simpan');
+    this.table = new Table(this);
+    
+    
     
     var today = function () {
         var d = new Date;
@@ -517,28 +548,31 @@ var UpperPanel = function () {
         }
     }.bind(this);
     
-    this.select_harga = function () {
+    this.inp_jenistrx.onfocus = function () {
         var widget = document.createElement('div');
-        widget.style = 'background-color:white; width:' + 
-            this.inp_harga.getBoundingClientRect().width +
-            'px; height:69px; position:absolute; left:' + 
-            this.inp_harga.getBoundingClientRect().left + 'px; top:' + 
-            this.inp_harga.getBoundingClientRect().top + 'px;';
+        widget.style = 'background-color:#dddddd; width:' + 
+            this.inp_jenistrx.getBoundingClientRect().width +
+            'px; height:70px; padding:5px; position:absolute; left:' + 
+            this.inp_jenistrx.getBoundingClientRect().left + 'px; top:' + 
+            this.inp_jenistrx.getBoundingClientRect().top + 'px;';
         widget.tabIndex='1';
         document.body.appendChild(widget);
         
         var hv = document.createElement('div');
         hv.style = 'height:21px; border:solid 1px #aaaaaa; text-align:center';
+        hv.setAttribute('class','selected');
         hv.innerHTML = 'HV';
         widget.appendChild(hv);
         
         var up = document.createElement('div');
         up.style = 'height:21px; border:solid 1px #aaaaaa; text-align:center';
+        up.setAttribute('class','row');
         up.innerHTML = 'UPDS';
         widget.appendChild(up);
         
         var r = document.createElement('div');
         r.style = 'height:21px; border:solid 1px #aaaaaa; text-align:center';
+        r.setAttribute('class','row');
         r.innerHTML = 'RESEP';
         widget.appendChild(r);
         
@@ -570,76 +604,107 @@ var UpperPanel = function () {
             } else if (e.which === 13) {
                 // ENTER
                 if (selected === 0) {
-                    this.inp_harga.value = parseInt(1.15 * this.harga);
+                    this.inp_jenistrx.value = "HV";
                 } else if (selected === 1) {
-                    this.inp_harga.value = parseInt(1.25 * this.harga);
+                    this.inp_jenistrx.value = "UPDS";
                 } else if (selected === 2) {
-                    this.inp_harga.value = parseInt(1.3 * this.harga);
+                    this.inp_jenistrx.value = "RESEP";
                 }
                 document.body.removeChild(widget);
-                this.inp_qty.focus();
+                setTimeout(function () {
+                    this.entri.focus();
+                }, 100)
             } else if (e.which === 27) {
-                this.inp_harga.value = this.harga;
+                this.inp_jenistrx.value = '';
                 document.body.removeChild(widget);
-                this.inp_harga.focus();
+                this.inp_qty.focus();
             }
         }.bind(this);
         widget.focus();
     }.bind(this);
     
-    this.inp_harga.onkeydown = function (e) {
-        if (e.which === 13) {
+    this.inp_satuan.onkeydown = function (e) {
+        if (e.which == 13) {
             this.inp_qty.focus();
         }
     }.bind(this);
     
+    this.inp_hnappn.onkeydown = function (e) {
+        if (e.which === 13) {
+            this.inp_jenistrx.focus();
+        }
+    }.bind(this);
+    
     this.clear_form = function () {
+        this.inp_kodeobat.value = '';
         this.inp_namaobat.value = '';
         this.inp_satuan.value = '';
         this.inp_qty.value = '';
-        this.inp_harga.value = '';
-        this.inp_subtot.value = '';
-        this.kode_obat = '';
-        this.harga = 0;
+        this.inp_hnappn.value = '';
+        this.inp_jenistrx.value = '';
     }.bind(this);
     
     this.inp_qty.onkeydown = function (e) {
         if (e.which === 13) {
-            this.inp_subtot.value = parseInt(this.inp_harga.value) * parseInt(this.inp_qty.value);
-            this.entri.focus()
+            this.inp_jenistrx.focus();
         }
     }.bind(this);
     
     this.entri.onclick = function () {
         this.table.add_data({
+            tanggal: this.inp_tanggal.value,
             kode_obat: this.inp_kodeobat.value,
             nama_obat: this.inp_namaobat.value,
             satuan: this.inp_satuan.value,
-            qty: this.inp_qty.value,
-            harga: this.inp_harga.value,
-            subtotal: this.inp_subtot.value
+            qty: parseInt(this.inp_qty.value),
+            hnappn: parseInt(this.inp_hnappn.value),
+            jenistrx: this.inp_jenistrx.value
         });
         this.table.rerender_data();
         this.clear_form();
+        this.inp_namaobat.focus();
     }.bind(this);
     
     this.entri.onkeydown = function (e) {
         if (e.which === 13) {
             this.table.add_data({
-            kode_obat: this.inp_kodeobat.value,
-            nama_obat: this.inp_namaobat.value,
-            satuan: this.inp_satuan.value,
-            qty: this.inp_qty.value,
-            harga: this.inp_harga.value,
-            subtotal: this.inp_subtot.value
-        });
-        this.table.rerender_data();
+                tanggal: this.inp_tanggal.value,
+                kode_obat: this.inp_kodeobat.value,
+                nama_obat: this.inp_namaobat.value,
+                satuan: this.inp_satuan.value,
+                qty: parseInt(this.inp_qty.value),
+                hnappn: parseInt(this.inp_hnappn.value),
+                jenistrx: this.inp_jenistrx.value
+            });
+            this.table.rerender_data();
             this.clear_form();
             this.inp_namaobat.focus();
         }
-        this.clear_form();
     }.bind(this);
+    
+    this.batal.onclick = function () {
+        this.clear_form();
+        this.inp_namaobat.focus();
+    }.bind(this);
+    
+    this.hapus.onclick = function () {
+        this.table.data = [];
+        this.table.rerender_data();
+    }.bind(this)
+    
+    this.simpan.onclick = function () {
+        var xhr = new XMLHttpRequest;
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                this.table.data = [];
+                this.table.rerender_data();
+            }
+        }.bind(this)
+        console.log(this.table.data);
+        xhr.open('POST', '/save?data=' + decodeURIComponent(JSON.stringify(this.table.data)));
+        xhr.send();
+    }.bind(this)
 }
 
 
-var upper_panel = new UpperPanel();
+var form = new Form();

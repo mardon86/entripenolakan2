@@ -19,6 +19,7 @@
             
             tr>th {
                 background-color: #aaaaaa;
+                color: black;
             }
             
             .row {
@@ -26,7 +27,7 @@
             }
             
             .selected {
-                background-color: orange;
+                background-color: #eb8a1b;
             }
 
         </style>
@@ -64,11 +65,11 @@
                     <div style='float:left; width:655px;'>
                         <div style='float:left; width:318px; padding:5px;'>
                             <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Satuan: </b></p>
-                            <input id='inp_satuan' type='text' style='float:left; width:170px;' readonly='readonly'/>
+                            <input id='inp_satuan' type='text' style='float:left; width:170px;'/>
                         </div>
                         <div style='float:left; width:313px; padding:5px;'>
-                            <p style='width:100px; margin:0px; padding-top:2px; margin-left:18px; float:left; height:21px;'><b>Harga: </b></p>
-                            <input id='inp_harga' type='text' style='float:left; width:170px;'/>
+                            <p style='width:100px; margin:0px; padding-top:2px; margin-left:18px; float:left; height:21px;'><b>HNAPPN: </b></p>
+                            <input id='inp_hnappn' type='text' style='float:left; width:170px;'/>
                         </div>
                     </div> 
                     
@@ -78,18 +79,16 @@
                             <input id='inp_qty' type='text' style='float:left; width:170px;'/>
                         </div>
                         <div style='float:left; width:313px; padding:5px;'>
-                            <p style='width:100px; margin:0px; padding-top:2px; margin-left:18px; float:left; height:21px;'><b>Sub Total: </b></p>
-                            <input id='inp_subtot' type='text' style='float:left; width:170px;' readonly='readonly'/>
+                            <p style='width:100px; margin:0px; padding-top:2px; margin-left:18px; float:left; height:21px;'><b>Jenis Trx: </b></p>
+                            <input id='inp_jenistrx' type='text' style='float:left; width:170px;' readonly='readonly'/>
                         </div>
                     </div> 
                     
                 </div>
                 
                 <div style='float:left; width:130px; height:116px; margin:0px; padding:5px;'>
-                    <div id='entri' style='color: white; background-color: #009900; width:120px; height:30px; margin-left:5px; text-align:center; font-size:1.5em;' tabindex='1'><b>Entri</b></div>
-                    <button style='color: white; background-color: #aa0000;width:120px; height:35px; margin-left:5px; margin-top:2px;'><b>Batal</b></button>
-                    <button style='width:120px; margin-left:5px; margin-top:2px;'>Edit</button>
-                    <button style='width:120px; margin-left:5px; margin-top:2px;'>Hapus</button>
+                    <button id='entri' style='color: black; background-color: #aaaaaa; width:120px; height:60px; margin-left:5px; text-align:center;'><b>Entri</b></button>
+                    <button id='batal' style='color: black; background-color: #aaaaaa; width:120px; height:60px; margin-left:5px; margin-top:2px; text-align:center;'><b>Batal</b></button>
                 </div>
             </div>
             <div>
@@ -99,8 +98,8 @@
                         <th><div style='width:336px;'>Nama Obat</div></th>
                         <th><div style='width:86px;'>Satuan</div></th>
                         <th><div style='width:76px;'>Qty</div></th>
-                        <th><div style='width:96px;'>Harga</div></th>
-                        <th><div style='width:96px;'>Subtotal</div></th>
+                        <th><div style='width:96px;'>HNAPPN</div></th>
+                        <th><div style='width:96px;'>Jenis Trx</div></th>
                         <th><div style='width:18px;'></div></th>
                     </tr>
                 </table>
@@ -108,10 +107,8 @@
                 <div id='tab_rows' style='height:220px; width:793px; overflow:scroll;'></div>
             </div>
             <div style='padding:5px;'>
-                <input type='text' style='float:right;height:30px;margin-right:16px;'/>
-                <p style='margin:0px; margin-right:10px; float:right; font-size:2em;'><b>Total:</b></p>
-                <button style='color: white; background-color: #aa0000; width:80px; height:40px; float:right; margin-right:15px;' name='tombol_keluar'><b>Keluar</b></button>
-                <form action = "/test" method="post"><button style='color: white; background-color: #009900; width:120px; height:40px; float:right; margin-right:15px;' id='save' name='but' value='mamapapa'/><b>Simpan</b></button></form>
+                <button id='simpan' style='color: black; background-color: #aaaaaa; width:120px; height:40px; margin-right:5px; margin-top:2px; text-align:center; float:right;'><b>Simpan</b></button>
+                <button id='hapus' style='color: black; background-color: #aaaaaa; width:120px; height:40px; margin-right:5px; margin-top:2px; text-align:center; float:right;'><b>Hapus</b></button>                
             </div>
         </div>
         <script src='../static/js/index.js'></script>
