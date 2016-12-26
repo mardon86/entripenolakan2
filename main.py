@@ -8,12 +8,57 @@ from xlrd import open_workbook
 from xlutils.copy import copy as xlcopy
 
 
+DB = 'app2015'
+
+
 cached = {
     'state' : 0,
+    'blocking': 0,
     'master_barang': [],
-    'searchkw': '',
     'non_master_temp': []
 }
+
+
+def read_file(raw_master_file):
+  with open(raw_master_file,'r') as rmf:
+    return rmf.read()
+
+
+def create_master_list_from_string(the_string):
+  a = string.split(re.sub('\r','', the_string),'\n')
+  amount_of_dashes = []
+  for line in a:
+    if '----' in line:
+      for i in string.split(line,' '):
+        amount_of_dashes.append(len(i))
+      break
+  master_list = []
+  for line in a:
+    if len(line) > 0:
+      if line[0].isdigit() or re.match('^ *\d*\.\d*', line):
+        line_list = []
+        curs = 0
+        for col in amount_of_dashes:
+          line_list.append(re.sub('^ *| *$','',line[curs:curs+col]))
+          curs = curs + col + 1
+        master_list.append(line_list)
+  return master_list
+
+
+def update_master_barang():
+	os.system('db2 connect to {0} user db2admin using Db2ibmrd7'.format(DB))
+    lmb = create_master_list_from_string(subprocess.Popen("db2 select KODE_OBAT, NAMA_OBAT, SATUAN_OBAT, HNAPPNREG_OBAT from TBMASOBAT", stdout=subprocess.PIPE).communicate()[0])
+    os.remove('DB' + os.path.sep + 'masterobat.xls')
+    wb = xlwt.Workbook()
+    s = wb.add_sheet('Sheet1')
+    s.write(0, 0, 'KODE_OBAT')
+    s.write(0, 1, 'NAMA_OBAT')
+    s.write(0, 2, 'SATUAN_OBAT')
+    s.write(0, 3, 'HNAPPNREG_OBAT')
+    for row in range(len(lmb)):
+        for col in range(4):
+            s.write(row + 1, col, lmb[row][col])
+    wb.save('DB' + os.path.sep + 'masterobat.xls')
 
 
 def get_master():
@@ -90,7 +135,7 @@ def get_num():
     if is_today():
         return three_digit_number(get_pickled_num())
     else:
-        update_pickled_date()
+		update_pickled_date()
         update_pickled_num(1)
         return '001'
 
@@ -216,24 +261,53 @@ def hello():
 @app.route("/queryreq", methods=['GET'])
 def queryreq():
     if request.method == 'GET':
-        cached['searchkw'] = request.args.get('key','')
-        try:
-            return jsonify(result = get_master_kw(cached['searchkw']))
-        finally:
-            cached['searchkw'] = ''
+        if cached['blocking'] == 1:
+            while True:
+                time.sleep(0.5)
+                if cached['blocking'] == 1:
+                    continue
+                else:
+                    break
+            cached['blocking'] = 1
+            res = jsonify(result = get_master_kw(request.args.get('key')))
+            cached['blocking'] = 0
+            return res
+        else:
+            cached['blocking'] = 1
+            res = jsonify(result = get_master_kw(request.args.get('key')))
+            cached['blocking'] = 0
+            return res  
 
 
 @app.route("/save", methods=['POST'])
 def save():
     if request.method == 'POST':
-        data = json.loads(request.args.get('data'))
-        write_excel(data)
-        increment_pickled_num()
-        return "DONE"
-        
+        if cached['blocking'] == 1:
+            while True:
+                time.sleep(0.5)
+                if cached['blocking'] == 1:
+                    continue
+                else:
+                    break
+            cached['blocking'] = 1
+            data = json.loads(request.args.get('data'))
+            write_excel(data)
+            increment_pickled_num()
+            cached['blocking'] = 0
+            return "DONE"
+        else:
+            cached['blocking'] = 1
+            data = json.loads(request.args.get('data'))
+            write_excel(data)
+            increment_pickled_num()
+            cached['blocking'] = 0
+            return "DONE"
+
 
 
 if __name__ == "__main__":
+	if not is_today():
+	    update_master_barang()
     sys.stdout.flush()
     app.run(host='0.0.0.0', port=5000, debug=False)
     
