@@ -520,7 +520,7 @@ var Form = function () {
         if (d.getMonth().toString().length === 2) {
             var month = d.getMonth().toString();
         } else {
-            var month = "0" + d.getMonth().toString();
+            var month = "0" + (d.getMonth() + 1).toString();
         }
         var year = (1900 + d.getYear()).toString();
         return year + '-' + month + '-' + date;
@@ -701,7 +701,9 @@ var Form = function () {
             }
         }.bind(this)
         console.log(this.table.data);
-        xhr.open('POST', '/save?data=' + decodeURIComponent(JSON.stringify(this.table.data)));
+        var base64enc = btoa(JSON.stringify(this.table.data));
+        xhr.open('GET', '/save?data=' + JSON.stringify(base64enc));
+        //xhr.open('GET', '/save?data=' + decodeURIComponent(JSON.stringify(this.table.data)));
         xhr.send();
     }.bind(this)
 }

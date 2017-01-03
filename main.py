@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import sys, time, os, re, json, pickle, xlrd, xlwt
+import sys, time, os, re, json, pickle, xlrd, xlwt, subprocess, string, base64
 from flask import Flask, render_template, request, jsonify
 from xlrd import open_workbook
 from xlutils.copy import copy as xlcopy
@@ -46,8 +46,10 @@ def create_master_list_from_string(the_string):
 
 
 def update_master_barang():
-	os.system('db2 connect to {0} user db2admin using Db2ibmrd7'.format(DB))
+    os.system('db2 connect to {0} user db2admin using Db2ibmrd7'.format(DB))
     lmb = create_master_list_from_string(subprocess.Popen("db2 select KODE_OBAT, NAMA_OBAT, SATUAN_OBAT, HNAPPNREG_OBAT from TBMASOBAT", stdout=subprocess.PIPE).communicate()[0])
+    lhb = create_master_list_from_string(subprocess.Popen("db2 select KODE_OBAT, NAMA_OBAT, SATUAN_OBAT, HNAPPNREG_OBAT from TBHISOBAT", stdout=subprocess.PIPE).communicate()[0])
+    lgb = lmb + lhb
     os.remove('DB' + os.path.sep + 'masterobat.xls')
     wb = xlwt.Workbook()
     s = wb.add_sheet('Sheet1')
@@ -55,9 +57,9 @@ def update_master_barang():
     s.write(0, 1, 'NAMA_OBAT')
     s.write(0, 2, 'SATUAN_OBAT')
     s.write(0, 3, 'HNAPPNREG_OBAT')
-    for row in range(len(lmb)):
+    for row in range(len(lgb)):
         for col in range(4):
-            s.write(row + 1, col, lmb[row][col])
+            s.write(row + 1, col, lgb[row][col])
     wb.save('DB' + os.path.sep + 'masterobat.xls')
 
 
@@ -135,7 +137,7 @@ def get_num():
     if is_today():
         return three_digit_number(get_pickled_num())
     else:
-		update_pickled_date()
+        update_pickled_date()
         update_pickled_num(1)
         return '001'
 
@@ -279,9 +281,9 @@ def queryreq():
             return res  
 
 
-@app.route("/save", methods=['POST'])
+@app.route("/save", methods=['GET'])
 def save():
-    if request.method == 'POST':
+    if request.method == 'GET':
         if cached['blocking'] == 1:
             while True:
                 time.sleep(0.5)
@@ -290,14 +292,16 @@ def save():
                 else:
                     break
             cached['blocking'] = 1
-            data = json.loads(request.args.get('data'))
+            json_data = bytes(base64.b64decode(request.args.get('data'))).decode()
+            data = json.loads(json_data)
             write_excel(data)
             increment_pickled_num()
             cached['blocking'] = 0
             return "DONE"
         else:
             cached['blocking'] = 1
-            data = json.loads(request.args.get('data'))
+            json_data = bytes(base64.b64decode(request.args.get('data'))).decode()
+            data = json.loads(json_data)
             write_excel(data)
             increment_pickled_num()
             cached['blocking'] = 0
@@ -306,8 +310,8 @@ def save():
 
 
 if __name__ == "__main__":
-	if not is_today():
-	    update_master_barang()
+    if not is_today():
+        update_master_barang()
     sys.stdout.flush()
     app.run(host='0.0.0.0', port=5000, debug=False)
     
