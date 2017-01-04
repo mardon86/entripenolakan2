@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import sys, time, os, re, json, pickle, xlrd, xlwt, subprocess, string, base64
+import sys, time, os, re, json, xlrd, xlwt, subprocess, string, base64
 from flask import Flask, render_template, request, jsonify
 from xlrd import open_workbook
 from xlutils.copy import copy as xlcopy
 
 
 DB = 'app2015'
+FROZEN_MASTER = True
 
 
 cached = {
@@ -95,13 +96,13 @@ def get_today():
 
 
 def get_pickled_date():
-    with open('last_date.pkl','rb') as f:
-        return pickle.load(f)
+    with open('last_date.txt','r') as f:
+        return str(f.readline())
 
 
 def get_pickled_num():
-    with open('last_num.pkl','rb') as f:
-        return pickle.load(f)
+    with open('last_num.txt','r') as f:
+        return int(f.readline())
 
 
 def is_today():
@@ -109,13 +110,13 @@ def is_today():
 
 
 def update_pickled_date():
-    with open('last_date.pkl','wb') as f:
-        pickle.dump(get_today(), f)
+    with open('last_date.txt','w') as f:
+        f.write(get_today())
 
 
 def update_pickled_num(num):
-    with open('last_num.pkl','wb') as f:
-        pickle.dump(num, f)
+    with open('last_num.txt','w') as f:
+        f.write(str(num))
 
 
 def three_digit_number(num):
@@ -310,7 +311,7 @@ def save():
 
 
 if __name__ == "__main__":
-    if not is_today():
+    if not FROZEN_MASTER and not is_today():
         update_master_barang()
     sys.stdout.flush()
     app.run(host='0.0.0.0', port=5000, debug=False)

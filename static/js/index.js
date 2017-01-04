@@ -229,6 +229,31 @@ var Table = function (form) {
             }
         }
         
+        var on_enter_cb = function () {
+            if (this.selected_now < this.data.length) {
+                var numrow = this.selected_now;
+                var src = this.data[numrow];
+                this.form.inp_kodeobat.value = src.kode_obat;
+                this.form.inp_namaobat.value = src.nama_obat;
+                this.form.inp_satuan.value = src.satuan;
+                this.form.inp_qty.value = src.qty;
+                this.form.inp_hnappn.value = src.hnappn;
+                this.form.inp_jenistrx.value = src.jenistrx;
+                var rm_elem = function (ls, n) {
+                    var res = [];
+                    for (var i=0; i<ls.length; i++) {
+                        if (i !== n) {
+                            res.push(ls[i]);
+                        }
+                    }
+                    return res;
+                }
+                this.data = rm_elem(this.data, numrow);
+                this.rerender_data();
+                this.form.inp_namaobat.focus();
+            }
+        }
+        
         this.widget.onkeydown = function (e) {
             e.preventDefault();
             if (e.which === 38) {
@@ -273,26 +298,13 @@ var Table = function (form) {
                 // ESC
                 document.getElementById('inp_namaobat').focus();
             } else if (e.which === 13) {
-                var numrow = this.rows_els.indexOf(this.rows_els[this.selected_now])
-                var src = this.data[numrow];
-                this.form.inp_kodeobat.value = src.kode_obat;
-                this.form.inp_namaobat.value = src.nama_obat;
-                this.form.inp_satuan.value = src.satuan;
-                this.form.inp_qty.value = src.qty;
-                this.form.inp_hnappn.value = src.hnappn;
-                this.form.inp_jenistrx.value = src.jenistrx;
-                var rm_elem = function(ls, n) {
-                    var res = [];
-                    for (var i=0; i<ls.length; i++) {
-                        if (i !== n) {
-                            res.push(ls[i]);
-                        }
-                    }
-                    return res;
-                }
-                this.data = rm_elem(this.data, numrow);
-                this.rerender_data();
+                // ENTER
+                on_enter_cb.bind(this)();
             }
+        }.bind(this);
+        
+        this.widget.ondblclick = function () {
+            on_enter_cb.bind(this)();
         }.bind(this);
         
         this.select_row(0);
@@ -434,6 +446,18 @@ var CariObat = function (visitor, ret) {
         }
     }.bind(this)
     
+    var on_enter_cb = function () {
+        if (this.rows_els[this.selected_now].children[2].children[0].children[0].innerHTML === '') {
+        } else {
+            this.visitor.inp_kodeobat.value = this.rows_els[this.selected_now].children[1].children[0].innerHTML;
+            this.visitor.inp_namaobat.value = this.rows_els[this.selected_now].children[2].children[0].children[0].innerHTML;
+            this.visitor.inp_satuan.value = this.rows_els[this.selected_now].children[3].children[0].innerHTML;
+            this.visitor.inp_hnappn.value = parseInt(this.rows_els[this.selected_now].children[4].children[0].innerHTML);
+            document.body.removeChild(this.widget);
+            visitor.inp_qty.focus();
+        }
+    }
+    
     this.table.onkeydown = function (e) {
         e.preventDefault();
         if (e.which === 38) {
@@ -480,13 +504,12 @@ var CariObat = function (visitor, ret) {
             document.getElementById('inp_namaobat').focus();
         } else if (e.which === 13) {
             // ENTER
-            this.visitor.inp_kodeobat.value = this.rows_els[this.selected_now].children[1].children[0].innerHTML;
-            this.visitor.inp_namaobat.value = this.rows_els[this.selected_now].children[2].children[0].children[0].innerHTML;
-            this.visitor.inp_satuan.value = this.rows_els[this.selected_now].children[3].children[0].innerHTML;
-            this.visitor.inp_hnappn.value = parseInt(this.rows_els[this.selected_now].children[4].children[0].innerHTML);
-            document.body.removeChild(this.widget);
-            visitor.inp_qty.focus();
+            on_enter_cb.bind(this)();
         }
+    }.bind(this);
+    
+    this.table.ondblclick = function () {
+        on_enter_cb.bind(this)();
     }.bind(this);
     
     this.table.focus();
@@ -526,6 +549,13 @@ var Form = function () {
         return year + '-' + month + '-' + date;
     }
     
+    
+    var fill_namaobat = function () {
+        alert('Harap isi nama obat');
+        this.inp_namaobat.focus();
+    }.bind(this);
+    
+    
     this.inp_tanggal.value = today();
     this.inp_namaobat.focus();
     
@@ -546,63 +576,67 @@ var Form = function () {
                 new CariObat(this, res);
             }.bind(this));
         }
+        if (e.which === 121) {
+            setTimeout(function () {
+                eval('window.form.simpan_cb.bind(form)();')
+            }, 100);
+        }
     }.bind(this);
     
-    this.inp_jenistrx.onfocus = function () {
-        var widget = document.createElement('div');
-        widget.style = 'background-color:#dddddd; width:' + 
-            this.inp_jenistrx.getBoundingClientRect().width +
-            'px; height:70px; padding:5px; position:absolute; left:' + 
-            this.inp_jenistrx.getBoundingClientRect().left + 'px; top:' + 
-            this.inp_jenistrx.getBoundingClientRect().top + 'px;';
-        widget.tabIndex='1';
-        document.body.appendChild(widget);
-        
-        var hv = document.createElement('div');
-        hv.style = 'height:21px; border:solid 1px #aaaaaa; text-align:center';
-        hv.setAttribute('class','selected');
-        hv.innerHTML = 'HV';
-        widget.appendChild(hv);
-        
-        var up = document.createElement('div');
-        up.style = 'height:21px; border:solid 1px #aaaaaa; text-align:center';
-        up.setAttribute('class','row');
-        up.innerHTML = 'UPDS';
-        widget.appendChild(up);
-        
-        var r = document.createElement('div');
-        r.style = 'height:21px; border:solid 1px #aaaaaa; text-align:center';
-        r.setAttribute('class','row');
-        r.innerHTML = 'RESEP';
-        widget.appendChild(r);
-        
-        var select_list = [hv, up, r]
-        var selected = 0;
-        
-        hv.setAttribute('class', 'selected');
-        
-        var select_vis = function(){
-            select_list.forEach(function(i){
-                i.setAttribute('class', 'row');
-            })
-            select_list[selected].setAttribute('class', 'selected');
+    
+    this.inp_hnappn.onfocus = function () {
+        if (this.inp_namaobat.value === '') {
+            fill_namaobat();
         }
-        
-        widget.onkeydown = function (e) {
-            if (e.which === 38) {
-                // UP
-                if (selected > 0) {
-                    selected = selected - 1;
-                    select_vis();
-                }
-            } else if (e.which === 40) {
-                // DOWN
-                if (selected < 2) {
-                    selected = selected + 1;
-                    select_vis();
-                }
-            } else if (e.which === 13) {
-                // ENTER
+    }.bind(this);
+    
+    
+    this.inp_qty.onfocus = function () {
+        if (this.inp_namaobat.value === '') {
+            fill_namaobat();
+        }
+    }.bind(this);
+    
+    
+    this.inp_satuan.onfocus = function () {
+        if (this.inp_namaobat.value === '') {
+            fill_namaobat();
+        }
+    }.bind(this);
+    
+    
+    this.inp_jenistrx.onfocus = function () {
+        //console.log(this.inp_namaobat.value);
+        if (this.inp_namaobat.value === '') {
+            fill_namaobat();
+        } else {
+            var widget = document.createElement('div');
+            widget.style = 'background-color:#dddddd; width:' + 
+                this.inp_jenistrx.getBoundingClientRect().width +
+                'px; height:70px; padding:5px; position:absolute; left:' + 
+                this.inp_jenistrx.getBoundingClientRect().left + 'px; top:' + 
+                this.inp_jenistrx.getBoundingClientRect().top + 'px;';
+            widget.tabIndex='1';
+            document.body.appendChild(widget);
+            
+            var selected = 0;
+            
+            var select_list = function () {
+                els = [];
+                els.push(document.getElementById('jenistrx_hv'));
+                els.push(document.getElementById('jenistrx_up'));
+                els.push(document.getElementById('jenistrx_r'));
+                return els;
+            }
+            
+            var select_vis = function(){
+                select_list().forEach(function(i){
+                    i.setAttribute('class', 'row');
+                })
+                select_list()[selected].setAttribute('class', 'selected');
+            }
+            
+            var onenter_jenistrx_cb = function () {
                 if (selected === 0) {
                     this.inp_jenistrx.value = "HV";
                 } else if (selected === 1) {
@@ -614,13 +648,76 @@ var Form = function () {
                 setTimeout(function () {
                     this.entri.focus();
                 }, 100)
-            } else if (e.which === 27) {
-                this.inp_jenistrx.value = '';
-                document.body.removeChild(widget);
-                this.inp_qty.focus();
             }
-        }.bind(this);
-        widget.focus();
+            
+            var hv = document.createElement('div');
+            hv.id = 'jenistrx_hv';
+            hv.style = 'height:21px; border:solid 1px #aaaaaa; text-align:center';
+            hv.setAttribute('class','selected');
+            hv.innerHTML = 'HV';
+            hv.onmousedown = function () {
+                selected = 0;
+                select_vis();
+            }
+            hv.onmouseup = function () {
+                onenter_jenistrx_cb.bind(this)();
+            }.bind(this);
+            widget.appendChild(hv);
+            
+            var up = document.createElement('div');
+            up.id = 'jenistrx_up';
+            up.style = 'height:21px; border:solid 1px #aaaaaa; text-align:center';
+            up.setAttribute('class','row');
+            up.innerHTML = 'UPDS';
+            up.onmousedown = function () {
+                selected = 1;
+                select_vis();
+            }
+            hv.onmouseup = function () {
+                onenter_jenistrx_cb.bind(this)();
+            }.bind(this);
+            widget.appendChild(up);
+            
+            var r = document.createElement('div');
+            r.id = 'jenistrx_r';
+            r.style = 'height:21px; border:solid 1px #aaaaaa; text-align:center';
+            r.setAttribute('class','row');
+            r.innerHTML = 'RESEP';
+            r.onmousedown = function () {
+                selected = 2;
+                select_vis();
+            }
+            r.onmouseup = function () {
+                onenter_jenistrx_cb.bind(this)();
+            }.bind(this);
+            widget.appendChild(r);
+            
+            hv.setAttribute('class', 'selected');
+            
+            widget.onkeydown = function (e) {
+                if (e.which === 38) {
+                    // UP
+                    if (selected > 0) {
+                        selected = selected - 1;
+                        select_vis();
+                    }
+                } else if (e.which === 40) {
+                    // DOWN
+                    if (selected < 2) {
+                        selected = selected + 1;
+                        select_vis();
+                    }
+                } else if (e.which === 13) {
+                    // ENTER
+                    onenter_jenistrx_cb.bind(this)();
+                } else if (e.which === 27) {
+                    this.inp_jenistrx.value = '';
+                    document.body.removeChild(widget);
+                    this.inp_qty.focus();
+                }
+            }.bind(this);
+            widget.focus();
+        }
     }.bind(this);
     
     this.inp_satuan.onkeydown = function (e) {
@@ -665,8 +762,24 @@ var Form = function () {
         this.inp_namaobat.focus();
     }.bind(this);
     
-    this.entri.onkeydown = function (e) {
-        if (e.which === 13) {
+    var on_entri_cb = function (e) {
+        var blanks = [];
+        if (this.inp_namaobat.value === '') {
+            blanks.push('Nama Obat');
+        }
+        if (this.inp_satuan.value === '') {
+            blanks.push('Satuan');
+        }
+        if (this.inp_hnappn.value === '') {
+            blanks.push('HNAPPN');
+        }
+        if (this.inp_qty.value === '') {
+            blanks.push('Qty');
+        }
+        if (this.inp_jenistrx.value === '') {
+            blanks.push('Jenis Trx');
+        }
+        if (blanks.length === 0) {
             this.table.add_data({
                 tanggal: this.inp_tanggal.value,
                 kode_obat: this.inp_kodeobat.value,
@@ -679,8 +792,27 @@ var Form = function () {
             this.table.rerender_data();
             this.clear_form();
             this.inp_namaobat.focus();
+        } else {
+            alert('Harap isi ' + blanks[0])
+            var to_fill = {
+                'Nama Obat': this.inp_namaobat,
+                'Satuan': this.inp_satuan,
+                'HNAPPN': this.inp_hnappn,
+                'Qty': this.inp_qty,
+                'Jenis Trx': this.inp_jenistrx
+            };
+            to_fill[blanks[0]].focus();
         }
-    }.bind(this);
+    };
+    
+    this.entri.onkeydown = function (e) {
+        if (e.which === 13) {
+            on_entri_cb.bind(this);
+        }
+    }
+    
+    this.entri.onclick = on_entri_cb.bind(this);
+    
     
     this.batal.onclick = function () {
         this.clear_form();
@@ -692,20 +824,26 @@ var Form = function () {
         this.table.rerender_data();
     }.bind(this)
     
-    this.simpan.onclick = function () {
-        var xhr = new XMLHttpRequest;
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                this.table.data = [];
-                this.table.rerender_data();
-            }
-        }.bind(this)
-        console.log(this.table.data);
-        var base64enc = btoa(JSON.stringify(this.table.data));
-        xhr.open('GET', '/save?data=' + JSON.stringify(base64enc));
-        //xhr.open('GET', '/save?data=' + decodeURIComponent(JSON.stringify(this.table.data)));
-        xhr.send();
-    }.bind(this)
+    this.simpan_cb = function () {
+        if (this.table.data.length === 0) {
+            alert('Entri penolakan kosong');
+            this.inp_namaobat.focus();
+        } else {
+            var xhr = new XMLHttpRequest;
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    this.table.data = [];
+                    this.table.rerender_data();
+                }
+            }.bind(this);
+            var base64enc = btoa(JSON.stringify(this.table.data));
+            xhr.open('GET', '/save?data=' + JSON.stringify(base64enc));
+            xhr.send();
+            this.inp_namaobat.focus();
+        }
+    }
+    
+    this.simpan.onclick = this.simpan_cb.bind(this);
 }
 
 

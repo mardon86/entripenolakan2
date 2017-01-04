@@ -12,8 +12,22 @@
 
         <style>
             
+            @font-face {
+                font-family: Titillium;
+                src: url({{url_for('static', filename='font/Titillium-Regular.otf')}});
+                font-style: normal;
+                font-weight: normal;
+            }
+            
+            @font-face {
+                font-family: Titillium;
+                src: url({{url_for('static', filename='font/Titillium-Bold.otf')}});
+                font-style: normal;
+                font-weight: bold;
+            }
+            
             body {
-                font-family: sans-serif;
+                font-family: Titillium, sans-serif;
                 margin: 0px;
             }
             
@@ -36,7 +50,7 @@
     
     <body>
     
-        <div style='background-color: #dddddd; width:800px; height:530px; padding: 5px; padding-top: 10px; padding-right: 0px;'>
+        <div style='background-color: #dddddd; width:800px; height:510px; padding: 10px 0px 5px 0px;'>
             
             <div style='background-color: #173169; margin:0px; margin-bottom:10px; height:46px;'>
                 <h1 style='color:white; margin:0px; float:left; margin:5px;'>ENTRI PENOLAKAN</h1>
@@ -48,8 +62,8 @@
                 <div style='float:left; width:655px; margin:0px;'>
                     <div style='float:left; width:655px;'>
                         <div style='float:left; width:655px; padding:5px;'>
-                            <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Tanggal: </b></p>
-                            <input id='inp_tanggal' type='date' style='float:left; width:184px;'/>
+                            <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Tanggal : </b></p>
+                            <input id='inp_tanggal' type='date' style='float:left; width:170px;'/>
 <!--
                             <p style='width:100px; margin:0px; padding-top:2px; padding-left:5px; float:left; height:21px;'><b>(mm/dd/yyyy)</b></p>
 -->
@@ -57,29 +71,29 @@
                     </div>
                     
                     <div style='float:left; width:655px; padding:5px;'>
-                        <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Nama Obat: </b></p>
+                        <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Nama Obat : </b></p>
                         <input id='inp_kodeobat' type='text' style='display:none;'/>
                         <input id='inp_namaobat' type='text' style='float:left; width:516px;' />
                     </div> 
                     
                     <div style='float:left; width:655px;'>
                         <div style='float:left; width:318px; padding:5px;'>
-                            <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Satuan: </b></p>
+                            <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Satuan : </b></p>
                             <input id='inp_satuan' type='text' style='float:left; width:170px;'/>
                         </div>
                         <div style='float:left; width:313px; padding:5px;'>
-                            <p style='width:100px; margin:0px; padding-top:2px; margin-left:18px; float:left; height:21px;'><b>HNAPPN: </b></p>
+                            <p style='width:100px; margin:0px; padding-top:2px; margin-left:18px; float:left; height:21px;'><b>HNAPPN : </b></p>
                             <input id='inp_hnappn' type='text' style='float:left; width:170px;'/>
                         </div>
                     </div> 
                     
                     <div style='float:left; width:655px;'>
                         <div style='float:left; width:318px; padding:5px;'>
-                            <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Qty: </b></p>
+                            <p style='width:100px; margin:0px; padding-top:2px; float:left; height:21px;'><b>Qty : </b></p>
                             <input id='inp_qty' type='text' style='float:left; width:170px;'/>
                         </div>
                         <div style='float:left; width:313px; padding:5px;'>
-                            <p style='width:100px; margin:0px; padding-top:2px; margin-left:18px; float:left; height:21px;'><b>Jenis Trx: </b></p>
+                            <p style='width:100px; margin:0px; padding-top:2px; margin-left:18px; float:left; height:21px;'><b>Jenis Trx : </b></p>
                             <input id='inp_jenistrx' type='text' style='float:left; width:170px;' readonly='readonly'/>
                         </div>
                     </div> 
@@ -87,8 +101,8 @@
                 </div>
                 
                 <div style='float:left; width:130px; height:116px; margin:0px; padding:5px;'>
-                    <button id='entri' style='color: black; background-color: #aaaaaa; width:120px; height:60px; margin-left:5px; text-align:center;'><b>Entri</b></button>
-                    <button id='batal' style='color: black; background-color: #aaaaaa; width:120px; height:60px; margin-left:5px; margin-top:2px; text-align:center;'><b>Batal</b></button>
+                    <button id='entri' style='color: black; background-color: #dddddd; width:120px; height:60px; margin-left:5px; text-align:center;'><b>Entri</b></button>
+                    <button id='batal' style='color: black; background-color: #dddddd; width:120px; height:60px; margin-left:5px; margin-top:2px; text-align:center;'><b>Batal</b></button>
                 </div>
             </div>
             <div>
@@ -107,8 +121,8 @@
                 <div id='tab_rows' style='height:220px; width:793px; overflow:scroll;'></div>
             </div>
             <div style='padding:5px;'>
-                <button id='simpan' style='color: black; background-color: #aaaaaa; width:120px; height:40px; margin-right:5px; margin-top:2px; text-align:center; float:right;'><b>Simpan</b></button>
-                <button id='hapus' style='color: black; background-color: #aaaaaa; width:120px; height:40px; margin-right:5px; margin-top:2px; text-align:center; float:right;'><b>Hapus</b></button>                
+                <button id='simpan' style='color: black; background-color: #dddddd; width:120px; height:40px; margin-right:5px; margin-top:2px; text-align:center; float:right;'><b>Simpan (F10)</b></button>
+                <button id='hapus' style='color: black; background-color: #dddddd; width:120px; height:40px; margin-right:5px; margin-top:2px; text-align:center; float:right;'><b>Hapus</b></button>                
             </div>
         </div>
         <script src='../static/js/index.js'></script>
