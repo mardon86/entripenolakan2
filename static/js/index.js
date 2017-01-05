@@ -212,7 +212,7 @@ var Table = function (form) {
                     satuan: this.data[i].satuan,
                     qty: this.data[i].qty,
                     hnappn: this.data[i].hnappn,
-                    jenistrx: this.data[i].jenixtrx
+                    jenistrx: this.data[i].jenistrx
                 });
                 el.onclick = function (e) {
                     if (e.target.tagName == 'TD') {
